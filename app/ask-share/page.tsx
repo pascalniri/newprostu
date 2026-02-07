@@ -4,7 +4,6 @@ import { useState } from "react";
 import Navigation from "@/components/ui/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -13,139 +12,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useSubmitQuestion from "@/hooks/useSubmitQuestion";
+import { useDropdowns } from "@/hooks/useDropdowns";
 
 export default function AskShare() {
-  const [formData, setFormData] = useState({
-    title: "",
-    postType: "Question",
-    topic: "",
-    school: "",
-    campus: "",
-    gradeLevel: "",
-    details: "",
-    yourName: "",
-    yourSchool: "",
-    tags: "",
-    linkUrl: "",
-    file: null as File | null,
-  });
-
   const [showLinkInput, setShowLinkInput] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{
-    type: "success" | "error" | null;
-    message: string;
-  }>({ type: null, message: "" });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const topics = [
-    "Mathematics",
-    "Chemistry",
-    "Physics",
-    "Biology",
-    "Computer Science",
-    "Engineering",
-    "Literature",
-    "History",
-    "Economics",
-    "Other",
-  ];
+  // Use the submission hook
+  const {
+    register,
+    formState: { errors },
+    setValue,
+    watch,
+    onSubmit,
+    isSubmitting,
+    uploadProgress,
+  } = useSubmitQuestion();
 
-  const schools = [
-    "College of Engineering",
-    "College of Literature, Science, and the Arts",
-    "Ross School of Business",
-    "School of Information",
-    "School of Public Health",
-    "School of Education",
-    "Other",
-  ];
+  // Fetch dropdown data
+  const {
+    topics,
+    schools,
+    campuses,
+    gradeLevels,
+    isLoading: dropdownsLoading,
+  } = useDropdowns();
 
-  const campuses = [
-    "North Campus",
-    "Central Campus",
-    "Medical Campus",
-    "Athletic Campus",
-  ];
-
-  const gradeLevels = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
-
-    try {
-      // Create FormData for file upload
-      const submitData = new FormData();
-      submitData.append("title", formData.title);
-      submitData.append("postType", formData.postType);
-      submitData.append("topic", formData.topic);
-      submitData.append("school", formData.school);
-      submitData.append("campus", formData.campus);
-      submitData.append("gradeLevel", formData.gradeLevel);
-      submitData.append("details", formData.details);
-      submitData.append("yourName", formData.yourName);
-      submitData.append("yourSchool", formData.yourSchool);
-      submitData.append("tags", formData.tags);
-
-      if (formData.linkUrl) {
-        submitData.append("linkUrl", formData.linkUrl);
-      }
-
-      if (formData.file) {
-        submitData.append("file", formData.file);
-      }
-
-      const response = await fetch("/api/submissions", {
-        method: "POST",
-        body: submitData,
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setSubmitStatus({
-          type: "success",
-          message: result.message,
-        });
-
-        // Reset form
-        setFormData({
-          title: "",
-          postType: "Question",
-          topic: "",
-          school: "",
-          campus: "",
-          gradeLevel: "",
-          details: "",
-          yourName: "",
-          yourSchool: "",
-          tags: "",
-          linkUrl: "",
-          file: null,
-        });
-        setShowLinkInput(false);
-      } else {
-        setSubmitStatus({
-          type: "error",
-          message: result.message || "Submission failed. Please try again.",
-        });
-      }
-    } catch (error) {
-      console.error("Submission error:", error);
-      setSubmitStatus({
-        type: "error",
-        message:
-          "An error occurred. Please check your internet connection and try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const postType = watch("postType");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, file: e.target.files[0] });
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setValue("file", file);
     }
   };
 
@@ -160,22 +60,9 @@ export default function AskShare() {
           </h1>
         </div>
 
-        {/* Success/Error Message */}
-        {submitStatus.type && (
-          <div
-            className={`mb-6 p-4 rounded-lg ${
-              submitStatus.type === "success"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700"
-                : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-700"
-            }`}
-          >
-            {submitStatus.message}
-          </div>
-        )}
-
         {/* Form */}
         <form
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl"
         >
           {/* Title and Post Type Row */}
@@ -184,19 +71,18 @@ export default function AskShare() {
               <Input
                 type="text"
                 placeholder="Title"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                required
+                {...register("title")}
                 disabled={isSubmitting}
               />
+              {errors.title && (
+                <p className="text-xs text-red-600">{errors.title.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Select
-                value={formData.postType}
+                value={postType}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, postType: value })
+                  setValue("postType", value as "Question" | "Resource")
                 }
                 disabled={isSubmitting}
               >
@@ -208,6 +94,11 @@ export default function AskShare() {
                   <SelectItem value="Resource">Resource</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.postType && (
+                <p className="text-xs text-red-600">
+                  {errors.postType.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -215,43 +106,45 @@ export default function AskShare() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-2">
               <Select
-                value={formData.topic}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, topic: value })
-                }
-                disabled={isSubmitting}
+                value={watch("topic")}
+                onValueChange={(value) => setValue("topic", value)}
+                disabled={isSubmitting || dropdownsLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Topic" />
                 </SelectTrigger>
                 <SelectContent>
                   {topics.map((topic) => (
-                    <SelectItem key={topic} value={topic}>
-                      {topic}
+                    <SelectItem key={topic.id} value={topic.name}>
+                      {topic.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {errors.topic && (
+                <p className="text-xs text-red-600">{errors.topic.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Select
-                value={formData.school}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, school: value })
-                }
-                disabled={isSubmitting}
+                value={watch("school")}
+                onValueChange={(value) => setValue("school", value)}
+                disabled={isSubmitting || dropdownsLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="School" />
                 </SelectTrigger>
                 <SelectContent>
                   {schools.map((school) => (
-                    <SelectItem key={school} value={school}>
-                      {school}
+                    <SelectItem key={school.id} value={school.name}>
+                      {school.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {errors.school && (
+                <p className="text-xs text-red-600">{errors.school.message}</p>
+              )}
             </div>
           </div>
 
@@ -259,43 +152,47 @@ export default function AskShare() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-2">
               <Select
-                value={formData.campus}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, campus: value })
-                }
-                disabled={isSubmitting}
+                value={watch("campus")}
+                onValueChange={(value) => setValue("campus", value)}
+                disabled={isSubmitting || dropdownsLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Campus" />
                 </SelectTrigger>
                 <SelectContent>
                   {campuses.map((campus) => (
-                    <SelectItem key={campus} value={campus}>
-                      {campus}
+                    <SelectItem key={campus.id} value={campus.name}>
+                      {campus.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {errors.campus && (
+                <p className="text-xs text-red-600">{errors.campus.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Select
-                value={formData.gradeLevel}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, gradeLevel: value })
-                }
-                disabled={isSubmitting}
+                value={watch("gradeLevel")}
+                onValueChange={(value) => setValue("gradeLevel", value)}
+                disabled={isSubmitting || dropdownsLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Grade level" />
                 </SelectTrigger>
                 <SelectContent>
                   {gradeLevels.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {level}
+                    <SelectItem key={level.id} value={level.name}>
+                      {level.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {errors.gradeLevel && (
+                <p className="text-xs text-red-600">
+                  {errors.gradeLevel.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -303,15 +200,16 @@ export default function AskShare() {
           <div className="mb-6">
             <Textarea
               placeholder="Share details and context"
-              value={formData.details}
-              onChange={(e) =>
-                setFormData({ ...formData, details: e.target.value })
-              }
+              {...register("details")}
               rows={6}
-              required
               disabled={isSubmitting}
               className="resize-none"
             />
+            {errors.details && (
+              <p className="text-xs text-red-600 mt-1">
+                {errors.details.message}
+              </p>
+            )}
           </div>
 
           {/* Your Name and Your School Row */}
@@ -320,10 +218,7 @@ export default function AskShare() {
               <Input
                 type="text"
                 placeholder="Your name (optional)"
-                value={formData.yourName}
-                onChange={(e) =>
-                  setFormData({ ...formData, yourName: e.target.value })
-                }
+                {...register("yourName")}
                 disabled={isSubmitting}
               />
             </div>
@@ -331,10 +226,7 @@ export default function AskShare() {
               <Input
                 type="text"
                 placeholder="Your school (optional)"
-                value={formData.yourSchool}
-                onChange={(e) =>
-                  setFormData({ ...formData, yourSchool: e.target.value })
-                }
+                {...register("yourSchool")}
                 disabled={isSubmitting}
               />
             </div>
@@ -345,10 +237,7 @@ export default function AskShare() {
             <Input
               type="text"
               placeholder="Tags (comma-separated)"
-              value={formData.tags}
-              onChange={(e) =>
-                setFormData({ ...formData, tags: e.target.value })
-              }
+              {...register("tags")}
               disabled={isSubmitting}
             />
           </div>
@@ -371,15 +260,19 @@ export default function AskShare() {
                   {showLinkInput ? "Hide Link" : "Add Link"}
                 </Button>
                 {showLinkInput && (
-                  <Input
-                    type="url"
-                    placeholder="Enter URL (https://...)"
-                    value={formData.linkUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, linkUrl: e.target.value })
-                    }
-                    disabled={isSubmitting}
-                  />
+                  <div>
+                    <Input
+                      type="url"
+                      placeholder="Enter URL (https://...)"
+                      {...register("linkUrl")}
+                      disabled={isSubmitting}
+                    />
+                    {errors.linkUrl && (
+                      <p className="text-xs text-red-600 mt-1">
+                        {errors.linkUrl.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -397,12 +290,27 @@ export default function AskShare() {
                     Choose File
                   </span>
                 </label>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {formData.file ? formData.file.name : "No file chosen"}
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  {selectedFile ? selectedFile.name : "No file chosen"}
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Upload Progress */}
+          {isSubmitting && uploadProgress > 0 && (
+            <div className="mb-6">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-[#FFCB05] h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-center">
+                Uploading... {uploadProgress}%
+              </p>
+            </div>
+          )}
 
           {/* Submit Button */}
           <div>

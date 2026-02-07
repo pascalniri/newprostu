@@ -120,7 +120,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Details Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-xs">
                   <div>
                     <span className="font-semibold text-gray-700 dark:text-gray-300">
                       School:
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
                       href={submission.attachment_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                      className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
                     >
                       {submission.attachment_type === "file"
                         ? `📎 ${submission.attachment_filename}`

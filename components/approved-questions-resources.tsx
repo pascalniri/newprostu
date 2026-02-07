@@ -226,7 +226,7 @@ export default function ApprovedQuestionsResources() {
         </div>
 
         {/* Results Count */}
-        <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mb-4 text-xs text-gray-600 dark:text-gray-400">
           Showing {filteredData.length}{" "}
           {filteredData.length === 1 ? "result" : "results"}
         </div>
@@ -262,14 +262,14 @@ export default function ApprovedQuestionsResources() {
                         {item.type}
                       </span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+                    <p className="text-gray-600 dark:text-gray-400 text-xs line-clamp-2">
                       {item.details}
                     </p>
                   </div>
                 </div>
 
                 {/* Essential Info */}
-                <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
+                <div className="flex flex-wrap items-center gap-4 text-xs mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-500 dark:text-gray-400">
                       Topic:
@@ -300,7 +300,7 @@ export default function ApprovedQuestionsResources() {
                     >
                       {item.university.charAt(0)}
                     </div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
                       {item.authorSchool}
                     </span>
                   </div>

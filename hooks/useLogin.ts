@@ -10,13 +10,14 @@ export function useLogin() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<LoginFormData>({
-    resolver: yupResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
+  const { register, handleSubmit, reset, formState, setValue, watch } =
+    useForm<LoginFormData>({
+      resolver: yupResolver(loginSchema),
+      defaultValues: {
+        email: "",
+        password: "",
+      },
+    });
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -60,9 +61,18 @@ export function useLogin() {
   };
 
   return {
-    form,
-    onSubmit: form.handleSubmit(onSubmit),
+    // React Hook Form methods
+    register,
+    handleSubmit,
+    reset,
+    formState,
+    setValue,
+    watch,
+    // Submission handler
+    onSubmit: handleSubmit(onSubmit),
+    // Loading state
     isLoading,
+    // Logout function
     logout,
   };
 }

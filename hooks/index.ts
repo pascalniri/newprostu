@@ -2,7 +2,7 @@
 export { useLogin } from "./useLogin";
 export { useSubmissions } from "./useSubmissions";
 export { useContent } from "./useContent";
-export { useSubmitQuestion } from "./useSubmitQuestion";
+export { default as useSubmitQuestion } from "./useSubmitQuestion";
 export { useDropdowns } from "./useDropdowns";
 export { useTopics } from "./useTopics";
 export { useSchools } from "./useSchools";
