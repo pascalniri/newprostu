@@ -1,0 +1,156 @@
+-- Seed Data for UMich Q&A Platform
+-- Run this in Supabase SQL Editor AFTER running schema.sql
+
+-- Insert sample approved content
+INSERT INTO approved_content (
+  title,
+  post_type,
+  topic,
+  school,
+  campus,
+  grade_level,
+  details,
+  author_name,
+  author_school,
+  university,
+  tags,
+  attachment_type,
+  attachment_url,
+  attachment_filename
+) VALUES
+(
+  'Calculus II - Derivatives and Limits Study Guide',
+  'Resource',
+  'Mathematics',
+  'College of Literature, Science, and the Arts',
+  'Central Campus',
+  'Sophomore',
+  'Comprehensive study guide covering derivatives, limits, and their applications. Includes practice problems with detailed solutions and step-by-step explanations.',
+  'Sarah Johnson',
+  'University of Michigan',
+  'UMich',
+  ARRAY['calculus', 'derivatives', 'limits', 'math'],
+  'link',
+  'https://drive.google.com/example-calculus-guide',
+  NULL
+),
+(
+  'Help with Organic Chemistry Synthesis Problem',
+  'Question',
+  'Chemistry',
+  'College of Engineering',
+  'North Campus',
+  'Junior',
+  'I''m stuck on a multi-step synthesis problem involving aldol condensation and Grignard reagents. The starting material is benzaldehyde and I need to synthesize 1-phenyl-2-propanol. Can anyone explain the mechanism?',
+  'Michael Chen',
+  'University of Michigan',
+  'UMich',
+  ARRAY['organic-chemistry', 'synthesis', 'help-needed'],
+  'file',
+  'https://res.cloudinary.com/demo/image/upload/sample.jpg',
+  'synthesis-problem.jpg'
+),
+(
+  'Machine Learning Course Notes - Complete Semester',
+  'Resource',
+  'Computer Science',
+  'College of Engineering',
+  'North Campus',
+  'Senior',
+  'My complete notes from EECS 445 (Machine Learning). Covers supervised learning, neural networks, deep learning, and practical implementations. Includes Python code examples and Jupyter notebooks.',
+  'Alex Rodriguez',
+  'University of Michigan',
+  'UMich',
+  ARRAY['machine-learning', 'eecs-445', 'neural-networks', 'python', 'notes'],
+  'link',
+  'https://github.com/example/ml-notes',
+  NULL
+),
+(
+  'Understanding Quantum Mechanics - Schrödinger Equation',
+  'Question',
+  'Physics',
+  'College of Literature, Science, and the Arts',
+  'Central Campus',
+  'Junior',
+  'Can someone explain the physical interpretation of the Schrödinger equation? I understand the math but struggling with what it means for the wave function to collapse.',
+  'Emily Watson',
+  'Harvard University',
+  'Harvard',
+  ARRAY['quantum-mechanics', 'physics', 'schrodinger'],
+  NULL,
+  NULL,
+  NULL
+),
+(
+  'Financial Accounting Study Materials',
+  'Resource',
+  'Ross School of Business',
+  'Central Campus',
+  'Sophomore',
+  'Collection of practice problems, formula sheets, and exam prep materials for ACC 271. Covers balance sheets, income statements, cash flow analysis, and financial ratios.',
+  'David Park',
+  'University of Michigan',
+  'UMich',
+  ARRAY['accounting', 'finance', 'ross', 'study-guide'],
+  'link',
+  'https://drive.google.com/example-accounting',
+  NULL
+),
+(
+  'Data Structures - Binary Trees Implementation Help',
+  'Question',
+  'Computer Science',
+  'School of Information',
+  'North Campus',
+  'Sophomore',
+  'I''m working on implementing a self-balancing binary search tree (AVL tree) in C++. My rotation functions aren''t working correctly. Can anyone review my code or point me to good resources?',
+  'Jessica Liu',
+  'Stanford University',
+  'Stanford',
+  ARRAY['data-structures', 'binary-trees', 'cpp', 'algorithms'],
+  'link',
+  'https://gist.github.com/example/avl-tree-code',
+  NULL
+),
+(
+  'Intro to Psychology - Cognitive Development Notes',
+  'Resource',
+  'Psychology',
+  'College of Literature, Science, and the Arts',
+  'Central Campus',
+  'Freshman',
+  'Comprehensive notes on Piaget''s stages of cognitive development, Vygotsky''s sociocultural theory, and modern perspectives on child development. Includes diagrams and real-world examples.',
+  'Rachel Green',
+  'Harvard University',
+  'Harvard',
+  ARRAY['psychology', 'cognitive-development', 'piaget', 'notes'],
+  'file',
+  'https://res.cloudinary.com/demo/raw/upload/psych-notes.pdf',
+  'cognitive-development-notes.pdf'
+),
+(
+  'Linear Algebra - Eigenvalues and Eigenvectors',
+  'Question',
+  'Mathematics',
+  'College of Engineering',
+  'North Campus',
+  'Sophomore',
+  'Having trouble understanding the geometric interpretation of eigenvalues and eigenvectors. How do they relate to linear transformations? Looking for intuitive explanations.',
+  NULL,
+  NULL,
+  'UMich',
+  ARRAY['linear-algebra', 'eigenvalues', 'eigenvectors', 'math'],
+  NULL,
+  NULL,
+  NULL
+);
+
+-- Verify the data was inserted
+SELECT 
+  title, 
+  post_type, 
+  university, 
+  topic 
+FROM approved_content 
+ORDER BY approved_at DESC;
