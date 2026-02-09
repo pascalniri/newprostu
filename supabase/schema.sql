@@ -15,6 +15,7 @@ create table if not exists submissions (
   post_type text not null check (post_type in ('Question', 'Resource')),
   topic text not null,
   school text not null,
+  university text not null,
   campus text not null,
   grade_level text not null,
   details text not null,

@@ -1,45 +1,37 @@
-import ApprovedQuestionsResources from "@/components/approved-questions-resources";
-import { Button } from "@/components/ui/button";
-import Navigation from "@/components/ui/navigation";
+"use client";
+
+import CampusMap from "@/components/campus-map";
+import Navigation from "@/components/navigation";
+import SelectYourUniversity from "@/components/select-your-university";
+import { useSubmissions, useUniversities } from "@/hooks";
 
 export default function Home() {
+  const { submissions, isLoading } = useSubmissions();
+  const { universities } = useUniversities();
   return (
-    <main>
-      <Navigation />
+    <main className="flex flex-col space-y-5 w-full py-5">
+     <Navigation />
 
-      {/* Hero Section */}
-      <div className="relative bg-[#00274C] text-white min-h-[60vh] flex items-center pt-40 flex-col w-full">
-        {/* Top Fade Grid Background */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `
-        linear-gradient(to right, #e2e8f011 1px, transparent 1px),
-        linear-gradient(to bottom, #e2e8f011 1px, transparent 1px)
-      `,
-            backgroundSize: "20px 30px",
-            WebkitMaskImage:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-            maskImage:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-          }}
-        />
-        <div className="z-5 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h1 className="text-3xl md:text-4xl font-bold">
-            Welcome to UMich Questions & <br /> Answers Hub
-          </h1>
-          <p className="text-xs mx-auto max-w-2xl text-gray-200">
-            Ask questions, share your knowledge, and collaborate with fellow
-            students. Whether you're seeking help or offering expertise, this is
-            your space to grow together.
-          </p>
-          <div className="flex gap-4 justify-center pt-4">
-            <Button variant="secondary">Get Started</Button>
-            <Button variant="tertiary">Learn More</Button>
-          </div>
+      <section className="w-full bg-white flex flex-col gap-2 items-start justify-center px-4 py-6 rounded-lg border border-[#E5E7EB]">
+        <h1 className="text-xl font-semibold">Our Mission</h1>
+        <p className="text-gray-500">
+          We connect high school students with real insights from university
+          students. Ask questions, share resources, and learn how to join clubs,
+          programs, and communities across top universities.
+        </p>
+      </section>
+
+      <section className="grid md:grid-cols-2 gap-4">
+        {/* CAMPUS MAP */}
+        <div>
+          <CampusMap />
         </div>
-      </div>
-      <ApprovedQuestionsResources />
+
+        {/* Select Your University */}
+        <div>
+          <SelectYourUniversity universities={universities} submissions={submissions} isLoading={isLoading} />
+        </div>
+      </section>
     </main>
   );
 }

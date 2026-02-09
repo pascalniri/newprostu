@@ -3,18 +3,39 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axios";
-import { submissionSchema, SubmissionFormData } from "@/lib/validations";
+import * as yup from "yup";
 
-// Re-export schema and type for convenience
-export { submissionSchema };
-export type { SubmissionFormData };
-
-interface SubmissionResult {
-  success: boolean;
-  data?: any;
-  error?: string;
-  code?: string;
+export interface SubmissionFormData {
+  title: string;
+  postType: "Question" | "Resource";
+  topic: string;
+  school: string;
+  university: string;
+  campus: string;
+  gradeLevel: string;
+  details: string;
+  yourName?: string;
+  yourSchool?: string;
+  tags?: string;
+  linkUrl?: string;
+  file?: File;
 }
+
+const submissionSchema = yup.object({
+  title: yup.string().required("Title is required"),
+  postType: yup.string().required("Post type is required"),
+  topic: yup.string().required("Topic is required"),
+  school: yup.string().required("School is required"),
+  university: yup.string().required("University is required"),
+  campus: yup.string().required("Campus is required"),
+  gradeLevel: yup.string().required("Grade level is required"),
+  details: yup.string().required("Details are required"),
+  yourName: yup.string().optional(),
+  yourSchool: yup.string().optional(),
+  tags: yup.string().optional(),
+  linkUrl: yup.string().optional(),
+  file: yup.mixed().optional(),
+});
 
 export default function useSubmitQuestion() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,95 +45,96 @@ export default function useSubmitQuestion() {
     register,
     handleSubmit,
     reset,
-    formState,
+    formState: { errors },
     setValue,
     watch,
     control,
     getValues,
     trigger,
   } = useForm<SubmissionFormData>({
-    resolver: yupResolver(submissionSchema),
+    resolver: yupResolver(submissionSchema) as any,
     defaultValues: {
       title: "",
       postType: "Question",
       topic: "",
       school: "",
+      university: "",
       campus: "",
       gradeLevel: "",
       details: "",
       yourName: undefined,
       yourSchool: undefined,
       tags: undefined,
-      linkUrl: null,
-      file: null,
+      linkUrl: undefined,
+      file: undefined,
     },
+    mode: "onBlur",
   });
 
-  const onSubmit = async (
-    data: SubmissionFormData,
-  ): Promise<SubmissionResult> => {
+  const onSubmit: (data: SubmissionFormData) => Promise<void> = async (
+    data,
+  ) => {
     setIsSubmitting(true);
-    setUploadProgress(0);
-    const toastId = toast.loading("Submitting your question...");
-
     try {
-      // Create FormData for file upload
+      // Create FormData object for file upload
       const formData = new FormData();
-      Object.keys(data).forEach((key) => {
-        const value = data[key as keyof SubmissionFormData];
-        if (value !== null && value !== undefined) {
-          formData.append(key, value as string | Blob);
-        }
-      });
+
+      // Append all text fields
+      formData.append("title", data.title);
+      formData.append("postType", data.postType);
+      formData.append("topic", data.topic);
+      formData.append("school", data.school);
+      formData.append("university", data.university);
+      formData.append("campus", data.campus);
+      formData.append("gradeLevel", data.gradeLevel);
+      formData.append("details", data.details);
+
+      // Append optional fields if they exist
+      if (data.yourName) formData.append("yourName", data.yourName);
+      if (data.yourSchool) formData.append("yourSchool", data.yourSchool);
+      if (data.tags) formData.append("tags", data.tags);
+      if (data.linkUrl) formData.append("linkUrl", data.linkUrl);
+
+      // Append file if it exists
+      if (data.file && data.file instanceof File) {
+        formData.append("file", data.file);
+      }
 
       const response = await axiosInstance.post("/submissions", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
-            setUploadProgress(
-              Math.round((progressEvent.loaded * 100) / progressEvent.total),
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
             );
+            setUploadProgress(percentCompleted);
           }
         },
       });
 
-      if (response.data.success) {
-        toast.success(response.data.message, { id: toastId });
-        reset();
-        setUploadProgress(0);
-        return { success: true, data: response.data };
-      }
-
-      toast.error(response.data.message || "Submission failed", {
-        id: toastId,
-      });
-      return { success: false, error: response.data.message };
+      toast.success(response.data.message);
+      reset();
+      setUploadProgress(0);
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "An error occurred. Please try again.",
-        { id: toastId },
-      );
-      return { success: false, error: error.response?.data?.message };
+      toast.error(error.response?.data?.message || "Submission failed");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return {
-    // React Hook Form methods
     register,
-    handleSubmit,
     reset,
-    formState,
     setValue,
     watch,
     control,
     getValues,
     trigger,
-    // Submission handler
-    onSubmit: handleSubmit(onSubmit),
-    // Loading states
+    handleSubmit: handleSubmit(onSubmit),
     isSubmitting,
     uploadProgress,
+    errors,
   };
 }

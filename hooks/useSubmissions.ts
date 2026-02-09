@@ -29,6 +29,23 @@ export function useSubmissions() {
     }
   };
 
+  const getSingleSubmission = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.get(`/submissions/${id}`);
+      console.log("Submission response:", response.data);
+      if (response.data.success) {
+        return response.data.submission;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const approveSubmission = async (
     submissionId: string,
     university: string,
@@ -85,11 +102,16 @@ export function useSubmissions() {
     }
   };
 
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
+
   return {
     submissions,
     isLoading,
     error,
     refetch: fetchSubmissions,
+    getSingleSubmission,
     approveSubmission,
     rejectSubmission,
   };

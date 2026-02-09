@@ -33,11 +33,20 @@ export async function POST(request: NextRequest) {
       .eq("id", authData.user.id)
       .single();
 
+    // Debug logging
+    console.log("Admin check - User ID:", authData.user.id);
+    console.log("Admin check - Data:", adminData);
+    console.log("Admin check - Error:", adminError);
+
     if (adminError || !adminData) {
       return NextResponse.json(
         {
           success: false,
           message: "Access denied - admin privileges required",
+          debug: {
+            userId: authData.user.id,
+            error: adminError?.message || "No admin record found",
+          },
         },
         { status: 403 },
       );

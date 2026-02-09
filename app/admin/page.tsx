@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Navigation from "@/components/ui/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSubmissions } from "@/hooks";
+import { AdminNav } from "@/components/admin-nav";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -10,244 +12,168 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Submission } from "@/types/database";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import formatDate from "@/lib/utils/date-formatter";
+import useMe from "@/hooks/useMe";
 
 export default function AdminDashboard() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedUniversities, setSelectedUniversities] = useState<{
-    [key: string]: string;
-  }>({});
-
-  useEffect(() => {
-    fetchSubmissions();
-  }, []);
-
-  const fetchSubmissions = async () => {
-    try {
-      const response = await fetch("/api/submissions");
-      const data = await response.json();
-      if (data.success) {
-        setSubmissions(data.submissions);
-      }
-    } catch (error) {
-      console.error("Error fetching submissions:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleApproval = async (
-    submissionId: string,
-    action: "approve" | "reject",
-  ) => {
-    try {
-      const university = selectedUniversities[submissionId] || "UMich";
-
-      const response = await fetch("/api/approve", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          submissionId,
-          action,
-          university: action === "approve" ? university : undefined,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Remove the submission from the list
-        setSubmissions(submissions.filter((sub) => sub.id !== submissionId));
-        alert(result.message);
-      } else {
-        alert("Error: " + result.message);
-      }
-    } catch (error) {
-      console.error("Approval error:", error);
-      alert("An error occurred");
-    }
-  };
+  const router = useRouter();
+  const { isLoading, submissions, approveSubmission, rejectSubmission } =
+    useSubmissions();
+  const { user, loadingMe, getUser } = useMe();
 
   return (
-    <div className="bg-[#00274C] min-h-screen">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-8">
-          Admin Dashboard
-        </h1>
+    <div className="flex flex-col space-y-5 w-full py-5 px-4">
+      <AdminNav user={user} loadingMe={loadingMe} getUser={getUser} />
+
+      {/* Submissions Table Section */}
+      <section className="w-full bg-white flex flex-col gap-4 items-start justify-center px-6 py-6 rounded-lg border border-[#E5E7EB]">
+        <div className="w-full flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Pending Submissions</h2>
+          <span className="text-xs text-gray-600">
+            {submissions.length} pending
+          </span>
+        </div>
 
         {isLoading ? (
-          <div className="text-white text-center py-12">
-            Loading submissions...
+          <div className="w-full border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-semibold">Title</TableHead>
+                  <TableHead className="font-semibold">Type</TableHead>
+                  <TableHead className="font-semibold">Topic</TableHead>
+                  <TableHead className="font-semibold">School</TableHead>
+                  <TableHead className="font-semibold">Submitted</TableHead>
+                  <TableHead className="font-semibold">University</TableHead>
+                  <TableHead className="font-semibold text-right">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[...Array(5)].map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[200px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-[80px] rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[100px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[150px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[100px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[100px]" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Skeleton className="h-8 w-[70px]" />
+                        <Skeleton className="h-8 w-[70px]" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         ) : submissions.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center">
-            <p className="text-gray-600 dark:text-gray-300">
-              No pending submissions
-            </p>
+          <div className="w-full text-center py-12 text-gray-500">
+            No pending submissions
           </div>
         ) : (
-          <div className="space-y-6">
-            {submissions.map((submission) => (
-              <div
-                key={submission.id}
-                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          <div className="w-full border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-semibold">Title</TableHead>
+                  <TableHead className="font-semibold">Type</TableHead>
+                  <TableHead className="font-semibold">Topic</TableHead>
+                  <TableHead className="font-semibold">School</TableHead>
+                  <TableHead className="font-semibold">Submitted</TableHead>
+                  <TableHead className="font-semibold">University</TableHead>
+                  <TableHead className="font-semibold text-right">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {submissions.map((submission) => (
+                  <TableRow
+                    key={submission.id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() =>
+                      router.push(`/admin/submissions/${submission.id}`)
+                    }
+                  >
+                    <TableCell className="font-medium max-w-xs truncate">
                       {submission.title}
-                    </h3>
-                    <div className="flex gap-2 flex-wrap">
+                    </TableCell>
+                    <TableCell>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`px-2 py-1 rounded text-xs font-medium ${
                           submission.post_type === "Question"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                            : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                            ? "bg-blue-500 text-white"
+                            : "bg-orange-500 text-white"
                         }`}
                       >
                         {submission.post_type}
                       </span>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                        {submission.topic}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Details Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-xs">
-                  <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      School:
-                    </span>{" "}
-                    <span className="text-gray-600 dark:text-gray-400">
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-600">
+                      {submission.topic}
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-600 max-w-xs truncate">
                       {submission.school}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      Campus:
-                    </span>{" "}
-                    <span className="text-gray-600 dark:text-gray-400">
-                      {submission.campus}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      Grade Level:
-                    </span>{" "}
-                    <span className="text-gray-600 dark:text-gray-400">
-                      {submission.grade_level}
-                    </span>
-                  </div>
-                  {submission.author_name && (
-                    <div>
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        Author:
-                      </span>{" "}
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {submission.author_name}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Details */}
-                <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                    {submission.details}
-                  </p>
-                </div>
-
-                {/* Tags */}
-                {submission.tags && submission.tags.length > 0 && (
-                  <div className="mb-4">
-                    <div className="flex gap-2 flex-wrap">
-                      {submission.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded text-xs"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Attachment */}
-                {submission.attachment_url && (
-                  <div className="mb-4">
-                    <a
-                      href={submission.attachment_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-500">
+                      {formatDate(submission.created_at)}
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-600">
+                      {submission.university || "Not Available"}
+                    </TableCell>
+                    <TableCell
+                      className="text-right"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {submission.attachment_type === "file"
-                        ? `📎 ${submission.attachment_filename}`
-                        : `🔗 ${submission.attachment_url}`}
-                    </a>
-                  </div>
-                )}
-
-                {/* Admin Actions */}
-                <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <Select
-                    value={selectedUniversities[submission.id] || "UMich"}
-                    onValueChange={(value) =>
-                      setSelectedUniversities({
-                        ...selectedUniversities,
-                        [submission.id]: value,
-                      })
-                    }
-                  >
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Select university" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="UMich">
-                        University of Michigan
-                      </SelectItem>
-                      <SelectItem value="Harvard">
-                        Harvard University
-                      </SelectItem>
-                      <SelectItem value="Stanford">
-                        Stanford University
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Button
-                    variant="default"
-                    onClick={() => handleApproval(submission.id, "approve")}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    Approve
-                  </Button>
-
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleApproval(submission.id, "reject")}
-                  >
-                    Reject
-                  </Button>
-                </div>
-
-                {/* Metadata */}
-                <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                  Submitted: {new Date(submission.created_at).toLocaleString()}
-                </div>
-              </div>
-            ))}
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="bg-green-500 hover:bg-green-600 text-white h-8 px-3 text-xs"
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="h-8 px-3 text-xs"
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

@@ -20,7 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} antialiased font-sans text-xs`}>
+      <body
+        className={`${geistSans.variable} antialiased font-sans text-xs bg-[#F6F3ED] w-full mx-auto`}
+      >
         <Toaster
           position="bottom-center"
           toastOptions={{
@@ -29,10 +31,11 @@ export default function RootLayout({
               background: "#111",
               color: "#fff",
               borderRadius: "1000px",
+              maxWidth: "500px",
             },
           }}
         />
-        {children}
+        <div className="w-full mx-auto max-w-5xl">{children}</div>
       </body>
     </html>
   );

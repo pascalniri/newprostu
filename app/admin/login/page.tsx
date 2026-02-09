@@ -14,16 +14,16 @@ export default function AdminLogin() {
   } = useLogin();
 
   return (
-    <div className="min-h-screen bg-[#00274C] flex items-center justify-center px-4">
+    <div className="min-h-screen  flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
+          <h1 className="text-3xl font-bold mb-2">Admin Login</h1>
           <p className="text-gray-300">UMich Q&A Platform</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8">
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -57,7 +57,7 @@ export default function AdminLogin() {
 
             <Button
               type="submit"
-              className="w-full bg-[#FFCB05] hover:bg-[#FFD23F] text-[#00274C] font-semibold"
+              className="w-full bg-[#F6F3ED] hover:bg-[#F6F3ED]/80 text-black border border-gray-200 font-semibold"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
@@ -69,7 +69,7 @@ export default function AdminLogin() {
               href="/"
               className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
             >
-              ← Back to Home
+              Back to Home
             </a>
           </div>
         </div>

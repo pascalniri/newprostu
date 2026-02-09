@@ -26,6 +26,8 @@ export const createSubmissionSchema = z.object({
 
   school: z.string().min(1, "School is required").trim(),
 
+  university: z.string().min(1, "University is required").trim(),
+
   campus: z.string().min(1, "Campus is required").trim(),
 
   gradeLevel: z.string().min(1, "Grade level is required").trim(),

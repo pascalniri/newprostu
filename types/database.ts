@@ -1,5 +1,6 @@
 // Database types
 export interface Submission {
+  university: string;
   id: string;
   title: string;
   post_type: "Question" | "Resource";
@@ -48,20 +49,7 @@ export interface Admin {
 }
 
 // Form data type
-export interface SubmissionFormData {
-  title: string;
-  postType: "Question" | "Resource";
-  topic: string;
-  school: string;
-  campus: string;
-  gradeLevel: string;
-  details: string;
-  yourName?: string;
-  yourSchool?: string;
-  tags: string;
-  linkUrl?: string;
-  file?: File;
-}
+
 
 // API Response types
 export interface SubmissionResponse {

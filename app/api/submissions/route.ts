@@ -35,6 +35,7 @@ export async function POST(
       postType: getFormDataString(formData, "postType") || "",
       topic: getFormDataString(formData, "topic") || "",
       school: getFormDataString(formData, "school") || "",
+      university: getFormDataString(formData, "university") || "",
       campus: getFormDataString(formData, "campus") || "",
       gradeLevel: getFormDataString(formData, "gradeLevel") || "",
       details: sanitizeText(getFormDataString(formData, "details") || ""),
@@ -153,6 +154,7 @@ export async function POST(
         post_type: validatedData.postType,
         topic: validatedData.topic,
         school: validatedData.school,
+        university: validatedData.university,
         campus: validatedData.campus,
         grade_level: validatedData.gradeLevel,
         details: validatedData.details,
@@ -183,7 +185,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message:
-        "Submission successful! Your question/resource will be reviewed and published soon.",
+        "Submission successful! Waiting for admin approval.",
       data: {
         id: data.id,
         status: data.status,
