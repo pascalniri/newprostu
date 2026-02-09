@@ -13,7 +13,7 @@ export default function Navigation() {
   const router = useRouter();
   const { universities, isLoading } = useUniversities();
   return (
-    <section className="w-full bg-white flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB]">
+    <section className="w-full bg-white flex flex-col md:flex-row items-start md:items-center justify-between p-4 gap-4 rounded-lg border border-[#E5E7EB]">
       <div className="flex items-center gap-2">
         <span className="w-12 h-12 rounded-lg bg-[#F6F3ED]"></span>
         <span className="flex flex-col ">
@@ -21,7 +21,7 @@ export default function Navigation() {
           <p className="text-gray-500">Ask, answer, and share resources</p>
         </span>
       </div>
-      <div className="flex items-center gap-10">
+      <div className="flex items-center md:justify-end justify-between w-full md:w-auto gap-10">
         <Select>
           <SelectTrigger className="p-2 w-32 rounded border border-[#E5E7EB] bg-[#F6F3ED]">
             <SelectValue placeholder="Select University" />
