@@ -56,33 +56,27 @@ export default function UniversityFeedPage() {
       <main className="space-y-6">
         {university && (
           <>
-            <UniversityHeader university={university} />
-
-            <div className="flex flex-col lg:flex-row gap-8">
-              <div className="flex-1">
+            {/* Responsive Container: Mobile (Stack) / Desktop (Sidebar Right) */}
+            <div className="flex flex-col lg:flex-row gap-6 lg:items-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Main Feed Column */}
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                     Community Feed
                   </h2>
-                  {/* Potential "Create Post" button could go here */}
                 </div>
 
                 <FeedList universityName={university.name} />
               </div>
 
-              {/* Sidebar / Right Column (Optional - e.g. Trending topics, Rules) */}
-              <div className="w-full lg:w-80 space-y-6">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
-                    Community Guidelines
-                  </h3>
-                  <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-300 list-disc list-inside">
-                    <li>Be respectful and constructive.</li>
-                    <li>Verify information before sharing.</li>
-                    <li>Stay on topic for each channel.</li>
-                    <li>Report inappropriate content.</li>
-                  </ul>
+              {/* Sidebar Column */}
+              <div className="w-full lg:w-80 xl:w-96 shrink-0 lg:sticky lg:top-24 space-y-6 order-first lg:order-last">
+                {/* University Card / Header */}
+                <div className="overflow-hidden">
+                  <UniversityHeader university={university} />
                 </div>
+
+                {/* Guidelines or other widgets can go here */}
               </div>
             </div>
           </>

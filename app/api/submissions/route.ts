@@ -72,11 +72,13 @@ export async function POST(
     const validatedData = validationResult.data;
 
     // Validate that at least one attachment is provided
-    const hasFile =
-      formData.get("file") && (formData.get("file") as File).size > 0;
+    const hasFiles =
+      formData.getAll("files") &&
+      formData.getAll("files").length > 0 &&
+      (formData.getAll("files")[0] as File).size > 0;
     const hasLink = validatedData.linkUrl;
 
-    if (!hasFile && !hasLink) {
+    if (!hasFiles && !hasLink) {
       return NextResponse.json(
         {
           success: false,
@@ -92,33 +94,55 @@ export async function POST(
     }
 
     // Process file upload
-    const file = formData.get("file") as File | null;
+    // Process file uploads
+    const files = formData.getAll("files") as File[];
     let attachmentType: "link" | "file" | null = null;
     let attachmentUrl: string | null = null;
     let attachmentFilename: string | null = null;
 
-    // Handle file upload
-    if (file && file.size > 0) {
-      // Validate file
-      const fileValidation = validateFile(file);
-      if (!fileValidation.valid) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: fileValidation.error || "Invalid file",
-            code: ERROR_CODES.INVALID_FILE_TYPE,
-          },
-          { status: 400 },
-        );
+    // Handle file uploads
+    if (files && files.length > 0) {
+      const uploadedUrls: string[] = [];
+      const uploadedFilenames: string[] = [];
+
+      // Validate all files first
+      for (const file of files) {
+        if (file.size > 0) {
+          const fileValidation = validateFile(file);
+          if (!fileValidation.valid) {
+            return NextResponse.json(
+              {
+                success: false,
+                message: fileValidation.error || `Invalid file: ${file.name}`,
+                code: ERROR_CODES.INVALID_FILE_TYPE,
+              },
+              { status: 400 },
+            );
+          }
+        }
       }
 
       try {
         // Upload to Cloudinary
-        const uploadResult = await uploadToCloudinary(file);
+        for (const file of files) {
+          if (file.size > 0) {
+            const uploadResult = await uploadToCloudinary(file);
+            uploadedUrls.push(uploadResult.secure_url);
+            uploadedFilenames.push(file.name);
+          }
+        }
 
-        attachmentType = "file";
-        attachmentUrl = uploadResult.secure_url;
-        attachmentFilename = fileValidation.metadata?.name || file.name;
+        if (uploadedUrls.length > 0) {
+          attachmentType = "file";
+          // Store as JSON string if multiple, or single string if one (for backward compatibility if needed, but JSON is safer for "multiple" feature)
+          // However, to keep it simple and consistent with the plan:
+          // We will store as JSON string of arrays.
+          // But wait, the existing column might be text. JSON.stringify works.
+          // If the frontend expects a single string for legacy posts, we might need a migration or handling.
+          // For now, let's assume new posts use this JSON format.
+          attachmentUrl = JSON.stringify(uploadedUrls);
+          attachmentFilename = JSON.stringify(uploadedFilenames);
+        }
       } catch (uploadError) {
         console.error("File upload error:", uploadError);
         return NextResponse.json(

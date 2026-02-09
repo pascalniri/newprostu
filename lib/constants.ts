@@ -5,7 +5,7 @@
 
 // File Upload Configuration
 export const FILE_UPLOAD = {
-  MAX_SIZE: 10 * 1024 * 1024, // 10MB in bytes
+  MAX_SIZE: 50 * 1024 * 1024, // 50MB in bytes
   ALLOWED_TYPES: [
     // Images
     "image/jpeg",
@@ -21,6 +21,10 @@ export const FILE_UPLOAD = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
     // Text
     "text/plain",
+    // Video
+    "video/mp4",
+    "video/quicktime",
+    "video/webm",
   ],
   ALLOWED_EXTENSIONS: [
     ".jpg",
@@ -34,6 +38,10 @@ export const FILE_UPLOAD = {
     ".xls",
     ".xlsx",
     ".txt",
+    // Video
+    ".mp4",
+    ".mov",
+    ".webm",
   ],
 } as const;
 

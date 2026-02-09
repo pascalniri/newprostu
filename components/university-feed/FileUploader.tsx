@@ -9,9 +9,13 @@ interface FileUploaderProps {
   onFileSelect: (
     fileData: { url: string; name: string; type: string } | null,
   ) => void;
+  children?: React.ReactNode;
 }
 
-export default function FileUploader({ onFileSelect }: FileUploaderProps) {
+export default function FileUploader({
+  onFileSelect,
+  children,
+}: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<{
     name: string;
@@ -107,7 +111,16 @@ export default function FileUploader({ onFileSelect }: FileUploaderProps) {
             <X className="w-4 h-4" />
           </Button>
         </div>
+      ) : children ? (
+        // Custom Trigger
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="cursor-pointer"
+        >
+          {children}
+        </div>
       ) : (
+        // Default Trigger
         <Button
           type="button"
           variant="outline"

@@ -36,7 +36,7 @@ export const submissionSchema = yup.object().shape({
     .nullable()
     .transform((value) => value || undefined)
     .defined(),
-  file: yup
+  files: yup
     .mixed()
     .nullable()
     .transform((value) => value || undefined)
@@ -119,7 +119,7 @@ export type SubmissionFormData = {
   yourSchool: string;
   tags: string;
   linkUrl: string | null;
-  file: any | null;
+  files: any | null;
 };
 export type LoginFormData = yup.InferType<typeof loginSchema>;
 export type TopicFormData = yup.InferType<typeof topicSchema>;

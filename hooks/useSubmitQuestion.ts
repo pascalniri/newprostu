@@ -18,7 +18,7 @@ export interface SubmissionFormData {
   yourSchool?: string;
   tags?: string;
   linkUrl?: string;
-  file?: File;
+  files?: File[];
 }
 
 const submissionSchema = yup.object({
@@ -34,7 +34,7 @@ const submissionSchema = yup.object({
   yourSchool: yup.string().optional(),
   tags: yup.string().optional(),
   linkUrl: yup.string().optional(),
-  file: yup.mixed().optional(),
+  files: yup.mixed().optional(),
 });
 
 export default function useSubmitQuestion() {
@@ -63,10 +63,9 @@ export default function useSubmitQuestion() {
       gradeLevel: "",
       details: "",
       yourName: undefined,
-      yourSchool: undefined,
       tags: undefined,
       linkUrl: undefined,
-      file: undefined,
+      files: [],
     },
     mode: "onBlur",
   });
@@ -95,9 +94,11 @@ export default function useSubmitQuestion() {
       if (data.tags) formData.append("tags", data.tags);
       if (data.linkUrl) formData.append("linkUrl", data.linkUrl);
 
-      // Append file if it exists
-      if (data.file && data.file instanceof File) {
-        formData.append("file", data.file);
+      // Append files if they exist
+      if (data.files && data.files.length > 0) {
+        Array.from(data.files).forEach((file) => {
+          formData.append("files", file);
+        });
       }
 
       const response = await axiosInstance.post("/submissions", formData, {
