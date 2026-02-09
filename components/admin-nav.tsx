@@ -25,7 +25,7 @@ export function AdminNav({
 
   return (
     <section className="w-full bg-white  p-4 rounded-lg border border-[#E5E7EB] ">
-      <div className="flex items-center justify-between w-full">
+      <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between w-full">
         <div className="flex items-center gap-2">
         <span className="w-10 h-10 rounded-md bg-[#F6F3ED] flex items-center justify-center text-black font-bold">
           A
@@ -34,7 +34,7 @@ export function AdminNav({
           <h1 className="text-lg font-semibold">Admin Dashboard</h1>
         </span>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between md:justify-end gap-4">
         {navItems.map((item) => (
           <h1
             key={item.path}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import type { ApprovalRequest } from "@/types/database";
 
 export async function POST(request: NextRequest) {
@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     // TODO: Add admin authentication middleware
     const body: ApprovalRequest = await request.json();
     const { submissionId, action, university } = body;
+    console.log("Approve Request:", { submissionId, action, university });
 
     if (!submissionId || !action) {
       return NextResponse.json(
@@ -29,10 +30,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Use the provided university override or fall back to the submission's university
+    const mappedUniversity = university || submission.university;
+
     if (action === "approve") {
-      if (!university) {
+      if (!mappedUniversity) {
         return NextResponse.json(
-          { success: false, message: "University is required for approval" },
+          {
+            success: false,
+            message: "University is required for approval",
+          },
           { status: 400 },
         );
       }
@@ -51,17 +58,22 @@ export async function POST(request: NextRequest) {
           details: submission.details,
           author_name: submission.author_name,
           author_school: submission.author_school,
-          university: university,
+          university: mappedUniversity,
           tags: submission.tags,
           attachment_type: submission.attachment_type,
           attachment_url: submission.attachment_url,
           attachment_filename: submission.attachment_filename,
+          approved_at: new Date().toISOString(),
         });
 
       if (approveError) {
         console.error("Approval error:", approveError);
         return NextResponse.json(
-          { success: false, message: "Failed to approve submission" },
+          {
+            success: false,
+            message: "Failed to approve submission",
+            error: approveError.message,
+          },
           { status: 500 },
         );
       }

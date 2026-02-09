@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createSubmissionSchema } from "@/lib/dtos/submission.dto";
 import { validateFile, uploadToCloudinary } from "@/lib/utils/file-upload.util";
 import {
@@ -184,8 +184,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message:
-        "Submission successful! Waiting for admin approval.",
+      message: "Submission successful! Waiting for admin approval.",
       data: {
         id: data.id,
         status: data.status,

@@ -8,13 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, Link as LinkIcon, Calendar } from "lucide-react";
 import { AdminNav } from "@/components/admin-nav";
 import useMe from "@/hooks/useMe";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface SubmissionDetailPageProps {
@@ -35,7 +29,6 @@ export default function SubmissionDetailPage({
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
-  const [selectedUniversity, setSelectedUniversity] = useState<string>("");
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
 
@@ -63,10 +56,10 @@ export default function SubmissionDetailPage({
   }, [submissionId]);
 
   const handleApprove = async () => {
-    if (!submissionId || !selectedUniversity) return;
+    if (!submissionId || !submission) return;
 
     setIsApproving(true);
-    const result = await approveSubmission(submissionId, selectedUniversity);
+    const result = await approveSubmission(submissionId, submission.university);
     setIsApproving(false);
 
     if (result.success) {
@@ -349,29 +342,10 @@ export default function SubmissionDetailPage({
         <h2 className="text-lg font-semibold">Actions</h2>
 
         <div className="w-full flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700">
-              Select University (required for approval)
-            </label>
-            <Select
-              value={selectedUniversity}
-              onValueChange={setSelectedUniversity}
-            >
-              <SelectTrigger className="w-full md:w-[300px]">
-                <SelectValue placeholder="Select university" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Harvard">Harvard</SelectItem>
-                <SelectItem value="Stanford">Stanford</SelectItem>
-                <SelectItem value="UMich">UMich</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex gap-3">
             <Button
               onClick={handleApprove}
-              disabled={!selectedUniversity || isApproving}
+              disabled={isApproving}
               className="bg-green-500 hover:bg-green-600 text-white"
             >
               {isApproving ? "Approving..." : "Approve Submission"}

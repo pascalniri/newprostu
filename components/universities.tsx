@@ -12,17 +12,19 @@ import { Eye } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import formatDate from "@/lib/utils/date-formatter";
 import { Button } from "./ui/button";
+import { useState } from "react";
+import CreateUniversityDialog from "@/dialogs/create-university";
 
 export default function Universities() {
-  const { universities, isLoading } = useUniversities();
+  const { universities, isLoading, refetch } = useUniversities();
   const router = useRouter();
-
+  const [openDialog, setOpenDialog] = useState(false);
   return (
     <section className="w-full flex flex-col items-start justify-center">
       <div className="w-full flex items-center justify-between mb-4">
         <h1 className="text-[15px] font-semibold ">Manage Universities</h1>
         <Button
-          onClick={() => router.push("/admin/universities/create")}
+          onClick={() => setOpenDialog(true)}
           className="bg-[#F6F3ED] hover:bg-[#F6F3ED]/80 text-black border border-gray-200"
         >
           Create University
@@ -146,6 +148,11 @@ export default function Universities() {
           </Table>
         </div>
       )}
+      <CreateUniversityDialog
+        open={openDialog}
+        setOpen={setOpenDialog}
+        onSuccess={refetch}
+      />
     </section>
   );
 }
