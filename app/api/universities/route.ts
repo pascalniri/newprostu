@@ -34,14 +34,24 @@ export async function GET(request: NextRequest) {
   try {
     const user = await verifyAdmin(request);
 
-    let query = supabaseAdmin.from("universities").select("*").order("name");
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    let query = supabaseAdmin
+      .from("universities")
+      .select("*", { count: "exact" })
+      .order("name")
+      .range(from, to);
 
     // If not admin, only show active universities
     if (!user) {
       query = query.eq("is_active", true);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       console.error("Error fetching universities:", error);
@@ -54,6 +64,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: data || [],
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+      },
     });
   } catch (error) {
     console.error("Universities fetch error:", error);
@@ -84,6 +100,8 @@ export async function POST(request: NextRequest) {
       latitude,
       longitude,
       is_active,
+      logo_url,
+      gallery_urls,
     } = await request.json();
 
     if (!name || !abbreviation) {
@@ -103,6 +121,8 @@ export async function POST(request: NextRequest) {
         latitude,
         longitude,
         is_active: is_active ?? true,
+        logo_url,
+        gallery_urls,
       })
       .select()
       .single();
@@ -149,6 +169,8 @@ export async function PUT(request: NextRequest) {
       latitude,
       longitude,
       is_active,
+      logo_url,
+      gallery_urls,
     } = await request.json();
 
     if (!id) {
@@ -167,6 +189,8 @@ export async function PUT(request: NextRequest) {
     if (latitude !== undefined) updateData.latitude = latitude;
     if (longitude !== undefined) updateData.longitude = longitude;
     if (is_active !== undefined) updateData.is_active = is_active;
+    if (logo_url !== undefined) updateData.logo_url = logo_url;
+    if (gallery_urls !== undefined) updateData.gallery_urls = gallery_urls;
 
     const { data, error } = await supabaseAdmin
       .from("universities")

@@ -79,6 +79,8 @@ export interface University {
   latitude: number | null;
   longitude: number | null;
   is_active: boolean;
+  logo_url: string | null;
+  gallery_urls: string[];
   created_at: string;
   updated_at: string;
 }

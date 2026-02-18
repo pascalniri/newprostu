@@ -44,7 +44,7 @@ export default function FeedList({ universityName }: FeedListProps) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="">
       {/* Filters */}
       <div className="flex items-center gap-2 mb-4">
         <Button
@@ -82,7 +82,7 @@ export default function FeedList({ universityName }: FeedListProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           {filteredPosts.map((post) => (
             <PostItem key={post.id} post={post} />
           ))}

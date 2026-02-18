@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,18 +15,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUniversities, UniversityFormData } from "@/hooks/useUniversities";
+import FileUploader from "@/components/university-feed/FileUploader";
+import { X } from "lucide-react";
+import { University } from "@/types/database";
 
 export default function CreateUniversityDialog({
   open,
   setOpen,
   onSuccess,
+  initialData,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   onSuccess?: () => void;
+  initialData?: University | null;
 }) {
   const {
     createUniversity,
+    updateUniversity,
     register,
     handleSubmit,
     watch,
@@ -37,14 +44,54 @@ export default function CreateUniversityDialog({
 
   const isActive = watch("is_active");
 
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        // Pre-fill form for editing
+        setValue("name", initialData.name);
+        setValue("abbreviation", initialData.abbreviation);
+        setValue("color_primary", initialData.color_primary);
+        setValue("color_secondary", initialData.color_secondary);
+        setValue("latitude", initialData.latitude);
+        setValue("longitude", initialData.longitude);
+        setValue("is_active", initialData.is_active);
+        setValue("logo_url", initialData.logo_url);
+        setValue("gallery_urls", initialData.gallery_urls || []);
+      } else {
+        // Reset for creation
+        reset({
+          name: "",
+          abbreviation: "",
+          color_primary: "",
+          color_secondary: "",
+          latitude: undefined,
+          longitude: undefined,
+          is_active: true,
+          logo_url: "",
+          gallery_urls: [],
+        });
+      }
+    }
+  }, [open, initialData, setValue, reset]);
+
   const onSubmit = async (data: UniversityFormData) => {
-    const result = await createUniversity({
-      ...data,
-      is_active: data.is_active ?? true,
-    });
+    let result;
+
+    if (initialData) {
+      // Update existing
+      result = await updateUniversity(initialData.id, {
+        ...data,
+        is_active: data.is_active ?? true,
+      });
+    } else {
+      // Create new
+      result = await createUniversity({
+        ...data,
+        is_active: data.is_active ?? true,
+      });
+    }
 
     if (result?.success) {
-      reset();
       setOpen(false);
       if (onSuccess) {
         onSuccess();
@@ -57,10 +104,13 @@ export default function CreateUniversityDialog({
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Create University</DialogTitle>
+            <DialogTitle>
+              {initialData ? "Edit University" : "Create University"}
+            </DialogTitle>
             <DialogDescription>
-              Add a new university to the platform. Include coordinates for map
-              display.
+              {initialData
+                ? "Update university details and settings."
+                : "Add a new university to the platform. Include coordinates for map display."}
             </DialogDescription>
           </DialogHeader>
 
@@ -171,6 +221,96 @@ export default function CreateUniversityDialog({
               </div>
             </div>
 
+            {/* Images */}
+            <div className="grid gap-4 border-t pt-4">
+              <h3 className="text-sm font-medium">Images</h3>
+
+              {/* Logo */}
+              <div className="flex flex-col gap-2">
+                <Label>University Logo</Label>
+                <div className="flex items-center gap-4">
+                  {watch("logo_url") && (
+                    <div className="relative w-16 h-16 border rounded-lg overflow-hidden">
+                      <img
+                        src={watch("logo_url") || ""}
+                        alt="Logo"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setValue("logo_url", null)}
+                        className="absolute top-0.5 right-0.5 bg-black/50 text-white rounded-full p-0.5"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                  <FileUploader
+                    bucketName="university-media"
+                    onFileSelect={(file) => {
+                      if (file) setValue("logo_url", file.url);
+                    }}
+                    showPreview={false}
+                  >
+                    <Button variant="secondary" size="sm" type="button">
+                      {watch("logo_url") ? "Change Logo" : "Upload Logo"}
+                    </Button>
+                  </FileUploader>
+                </div>
+                {errors.logo_url && (
+                  <p className="text-red-500 text-xs">
+                    {errors.logo_url.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Gallery */}
+              <div className="flex flex-col gap-2">
+                <Label>Gallery Images</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(watch("gallery_urls") || []).map((url, index) => (
+                    <div
+                      key={index}
+                      className="relative aspect-video border rounded-lg overflow-hidden group"
+                    >
+                      <img
+                        src={url}
+                        alt={`Gallery ${index}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = watch("gallery_urls") || [];
+                          setValue(
+                            "gallery_urls",
+                            current.filter((_, i) => i !== index),
+                          );
+                        }}
+                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  <FileUploader
+                    bucketName="university-media"
+                    onFileSelect={(file) => {
+                      if (file) {
+                        const current = watch("gallery_urls") || [];
+                        setValue("gallery_urls", [...current, file.url]);
+                      }
+                    }}
+                    showPreview={false}
+                  >
+                    <div className="flex flex-col items-center justify-center w-full h-full min-h-[80px] border-2 border-dashed rounded-lg hover:bg-gray-50 cursor-pointer">
+                      <span className="text-xs text-gray-500">+ Add Image</span>
+                    </div>
+                  </FileUploader>
+                </div>
+              </div>
+            </div>
+
             {/* Active Status */}
             <div className="flex items-center gap-2">
               <Checkbox
@@ -194,7 +334,11 @@ export default function CreateUniversityDialog({
               </Button>
             </DialogClose>
             <Button disabled={isSubmitting} type="submit">
-              {isSubmitting ? "Creating..." : "Create University"}
+              {isSubmitting
+                ? "Saving..."
+                : initialData
+                  ? "Update University"
+                  : "Create University"}
             </Button>
           </DialogFooter>
         </form>

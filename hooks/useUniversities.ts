@@ -35,6 +35,11 @@ const universitySchema = yup.object({
     .transform((value, originalValue) => (originalValue === "" ? null : value))
     .defined(),
   is_active: yup.boolean().required(),
+  logo_url: yup.string().url("Must be a valid URL").nullable().defined(),
+  gallery_urls: yup
+    .array()
+    .of(yup.string().url("Must be a valid URL").defined())
+    .default([]),
 });
 
 interface University {
@@ -46,6 +51,8 @@ interface University {
   latitude: number | null;
   longitude: number | null;
   is_active: boolean;
+  logo_url: string | null;
+  gallery_urls: string[];
   created_at: string;
   updated_at: string;
 }
@@ -56,6 +63,10 @@ export function useUniversities() {
   const [universities, setUniversities] = useState<University[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const {
     register,
@@ -74,20 +85,28 @@ export function useUniversities() {
       latitude: undefined,
       longitude: undefined,
       is_active: true,
+      logo_url: "",
+      gallery_urls: [],
     },
   });
 
   useEffect(() => {
     fetchUniversities();
-  }, []);
+  }, [page, limit]);
 
   const fetchUniversities = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get("/universities");
+      const response = await axiosInstance.get(
+        `/universities?page=${page}&limit=${limit}`,
+      );
 
       if (response.data.success) {
         setUniversities(response.data.data);
+        if (response.data.pagination) {
+          setTotalPages(response.data.pagination.totalPages);
+          setTotalCount(response.data.pagination.total);
+        }
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load universities");
@@ -99,12 +118,18 @@ export function useUniversities() {
   const createUniversity = async (data: UniversityFormData) => {
     try {
       const response = await axiosInstance.post("/universities", data);
-       toast.success(response.data.message || "University created successfully")
-       reset();
-       return { success: true, data: response.data.data };
+      toast.success(response.data.message || "University created successfully");
+      reset();
+      fetchUniversities(); // Refresh list
+      return { success: true, data: response.data.data };
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create university")
-      return { success: false, error: error.response?.data?.message || "Failed to create university" };
+      toast.error(
+        error.response?.data?.message || "Failed to create university",
+      );
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to create university",
+      };
     }
   };
 
@@ -152,11 +177,29 @@ export function useUniversities() {
     }
   };
 
+  const getUniversity = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.get(`/universities/${id}`);
+      if (response.data.success) {
+        return response.data; // Return full response with data property
+      }
+      return { success: false, message: "Failed to load university" };
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to load university";
+      setError(msg);
+      return { success: false, message: msg };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     universities,
     isLoading,
     error,
     refetch: fetchUniversities,
+    getUniversity,
     createUniversity,
     updateUniversity,
     deleteUniversity,
@@ -167,5 +210,11 @@ export function useUniversities() {
     watch,
     reset,
     isSubmitting,
+    page,
+    setPage,
+    limit,
+    setLimit,
+    totalPages,
+    totalCount,
   };
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { useUniversities } from "@/hooks";
 import {
   Table,
@@ -8,23 +10,37 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
-import { Eye } from "lucide-react";
+import { Eye, Edit } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import formatDate from "@/lib/utils/date-formatter";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import CreateUniversityDialog from "@/dialogs/create-university";
+import { University } from "@/types/database";
 
 export default function Universities() {
   const { universities, isLoading, refetch } = useUniversities();
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
+  const [selectedUniversity, setSelectedUniversity] =
+    useState<University | null>(null);
+
+  const handleCreate = () => {
+    setSelectedUniversity(null);
+    setOpenDialog(true);
+  };
+
+  const handleEdit = (university: University) => {
+    setSelectedUniversity(university);
+    setOpenDialog(true);
+  };
+
   return (
     <section className="w-full flex flex-col items-start justify-center">
       <div className="w-full flex items-center justify-between mb-4">
         <h1 className="text-[15px] font-semibold ">Manage Universities</h1>
         <Button
-          onClick={() => setOpenDialog(true)}
+          onClick={handleCreate}
           className="bg-[#F6F3ED] hover:bg-[#F6F3ED]/80 text-black border border-gray-200"
         >
           Create University
@@ -116,14 +132,26 @@ export default function Universities() {
                     {university.abbreviation}
                   </TableCell>
                   <TableCell className="text-xs text-gray-600">
-                    {university.color_primary}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded border"
+                        style={{ backgroundColor: university.color_primary }}
+                      />
+                      {university.color_primary}
+                    </div>
                   </TableCell>
                   <TableCell className="text-xs text-gray-600 max-w-xs truncate">
-                    {university.color_secondary}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded border"
+                        style={{ backgroundColor: university.color_secondary }}
+                      />
+                      {university.color_secondary}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`text-xs text-white px-2 py-1 rounded ${university.is_active === true ? "bg-green-500" : "bg-red-500"}`}
+                      className={`text-xs text-white px-2 py-1 rounded ${university.is_active === true ? "bg-green-500" : "bg-gray-300"}`}
                     >
                       {university.is_active ? "Active" : "Inactive"}
                     </span>
@@ -135,11 +163,34 @@ export default function Universities() {
                     {formatDate(university.updated_at)}
                   </TableCell>
                   <TableCell
-                    className="flex justify-end"
+                    className="text-right"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="w-8 h-8 border border-gray-200 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer">
-                      <Eye size={16} />
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(university);
+                        }}
+                        className="h-8 w-8 hover:bg-gray-100"
+                        title="Edit University"
+                      >
+                        <Edit className="h-4 w-4 text-gray-500" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/admin/universities/${university.id}`);
+                        }}
+                        className="h-8 w-8 hover:bg-gray-100"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -152,6 +203,7 @@ export default function Universities() {
         open={openDialog}
         setOpen={setOpenDialog}
         onSuccess={refetch}
+        initialData={selectedUniversity}
       />
     </section>
   );

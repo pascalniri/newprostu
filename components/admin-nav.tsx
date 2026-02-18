@@ -19,8 +19,10 @@ export function AdminNav({
   const [openDialog, setOpenDialog] = useState(false);
 
   const navItems = [
+    { label: "Home", path: "/" },
     { label: "Submissions", path: "/admin" },
     { label: "Lookups", path: "/admin/lookups" },
+
   ];
 
   return (

@@ -10,11 +10,15 @@ interface FileUploaderProps {
     fileData: { url: string; name: string; type: string } | null,
   ) => void;
   children?: React.ReactNode;
+  showPreview?: boolean;
+  bucketName?: string;
 }
 
 export default function FileUploader({
   onFileSelect,
   children,
+  showPreview = true,
+  bucketName = "comment-attachments",
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<{
@@ -41,7 +45,7 @@ export default function FileUploader({
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("comment-attachments")
+        .from(bucketName)
         .upload(filePath, file);
 
       if (uploadError) {
@@ -50,7 +54,7 @@ export default function FileUploader({
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("comment-attachments").getPublicUrl(filePath);
+      } = supabase.storage.from(bucketName).getPublicUrl(filePath);
 
       const fileData = {
         url: publicUrl,
@@ -87,7 +91,7 @@ export default function FileUploader({
         accept="image/*,application/pdf,.doc,.docx" // basic accepted types
       />
 
-      {selectedFile ? (
+      {selectedFile && showPreview ? (
         <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded">

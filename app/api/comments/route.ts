@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       attachment_type,
       author_name,
       author_id,
+      parent_id, // Add parent_id
     } = body;
 
     // Basic validation
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
         attachment_url: attachment_url || null,
         attachment_name: attachment_name || null,
         attachment_type: attachment_type || null,
+        parent_id: parent_id || null, // Add to insert
         status: "pending", // Default to pending as per schema
       })
       .select()

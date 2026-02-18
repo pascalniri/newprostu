@@ -13,19 +13,26 @@ import { Button } from "@/components/ui/button";
 export default function UniversityFeedPage() {
   const params = useParams();
   const router = useRouter();
-  const { universities, isLoading: universitiesLoading } = useUniversities();
+  const { getUniversity } = useUniversities();
   const [university, setUniversity] = useState<University | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (universities.length > 0 && params.id) {
-      const found = universities.find((u) => u.id === params.id);
-      if (found) {
-        setUniversity(found);
+    const loadUniversity = async () => {
+      if (params.id) {
+        setIsLoading(true);
+        const result = await getUniversity(params.id as string);
+        if (result.success) {
+          setUniversity(result.data);
+        }
+        setIsLoading(false);
       }
-    }
-  }, [universities, params.id]);
+    };
 
-  if (universitiesLoading) {
+    loadUniversity();
+  }, [params.id]);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F6F3ED]">
         <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
@@ -33,7 +40,7 @@ export default function UniversityFeedPage() {
     );
   }
 
-  if (!university && !universitiesLoading) {
+  if (!university && !isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#F6F3ED] p-4">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -56,15 +63,14 @@ export default function UniversityFeedPage() {
       <main className="space-y-6">
         {university && (
           <>
-            {/* Responsive Container: Mobile (Stack) / Desktop (Sidebar Right) */}
             <div className="flex flex-col lg:flex-row gap-6 lg:items-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* Main Feed Column */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-6">
+                {/* <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                     Community Feed
                   </h2>
-                </div>
+                </div> */}
 
                 <FeedList universityName={university.name} />
               </div>
@@ -75,8 +81,6 @@ export default function UniversityFeedPage() {
                 <div className="overflow-hidden">
                   <UniversityHeader university={university} />
                 </div>
-
-                {/* Guidelines or other widgets can go here */}
               </div>
             </div>
           </>
