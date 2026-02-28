@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import type { ApprovedContent, ContentFilters } from "@/types/database";
 
@@ -36,10 +36,30 @@ export function useContent(filters?: ContentFilters) {
     }
   };
 
+  const getSingleContent = useCallback(async (id: string, userId?: string) => {
+    setIsLoading(true);
+    try {
+      const url = userId
+        ? `/content/${id}?user_id=${userId}`
+        : `/content/${id}`;
+      const response = await axiosInstance.get(url);
+      if (response.data.success) {
+        return response.data.content as ApprovedContent;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching single content:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return {
     content,
     isLoading,
     error,
     refetch: fetchContent,
+    getSingleContent,
   };
 }

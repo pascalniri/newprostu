@@ -18,6 +18,9 @@ export interface Submission {
   status: "pending" | "reviewing";
   created_at: string;
   updated_at: string;
+  view_count?: number; // Optional since Submissions might not have views tracked yet
+  votes?: number; // Added to prevent TS errors
+  answers_count?: number; // Added to prevent TS errors
 }
 
 export interface ApprovedContent {
@@ -39,6 +42,25 @@ export interface ApprovedContent {
   attachment_filename: string | null;
   approved_by: string | null;
   approved_at: string;
+  created_at: string;
+  view_count: number;
+  votes?: number; // Added to prevent TS errors
+  answers_count?: number; // Added to prevent TS errors
+}
+
+export interface Bookmark {
+  id: string;
+  user_id: string;
+  content_id: string;
+  created_at: string;
+}
+
+export interface Vote {
+  id: string;
+  user_id: string;
+  content_id: string | null;
+  comment_id: string | null;
+  vote_type: 1 | -1;
   created_at: string;
 }
 

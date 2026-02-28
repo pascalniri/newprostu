@@ -10,13 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  X,
-  FileText,
-  Image as ImageIcon,
-  UploadCloud,
-  Video,
-} from "lucide-react";
+import { X, FileText, UploadCloud, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   useSubmitQuestion,
@@ -43,402 +37,468 @@ export default function AskShare() {
     handleSubmit,
     setValue,
     control,
-    uploadProgress,
     isSubmitting,
     errors,
     watch,
   } = useSubmitQuestion();
 
   return (
-    <main className="flex flex-col space-y-5 w-full py-5">
-      {/* Header Section */}
-      <Navigation />
+    <main className="flex flex-col w-full min-h-screen bg-[#F6F3ED] dark:bg-black font-sans">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col space-y-5">
+        <Navigation />
 
-      {/* Form Section */}
-      <section className="w-full bg-white flex flex-col gap-6 items-start justify-center px-6 py-8 rounded-lg border border-[#E5E7EB]">
-        <h2 className="text-lg font-bold">
-          Ask a Question or Share a Resource
-        </h2>
+        <div className="flex flex-col mb-4 mt-6 px-2">
+          <h1 className="text-2xl md:text-[27px] font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            Ask a public question
+          </h1>
 
-        <form onSubmit={handleSubmit} className="w-full space-y-4">
-          {/* Row 1: Title and Type */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Input
-                id="title"
-                type="text"
-                {...register("title")}
-                placeholder="Title"
-                className="w-full"
-              />
-              {errors.title && (
-                <p className="text-red-500 text-xs">{errors.title.message}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Controller
-                name="postType"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Question">Question</SelectItem>
-                      <SelectItem value="Resource">Resource</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.postType && (
-                <p className="text-red-500 text-xs">
-                  {errors.postType.message}
-                </p>
-              )}
-            </div>
+          {/* Informational Welcome Banner */}
+          <div className="bg-[#EBF4FB] dark:bg-blue-900/20 border border-[#A6CEED] dark:border-blue-800 rounded p-6 w-full lg:w-2/3 mb-4">
+            <h2 className="text-xl text-gray-800 dark:text-blue-100 font-normal mb-3">
+              Writing a good question
+            </h2>
+            <p className="text-[15px] text-gray-800 dark:text-blue-200 mb-3">
+              You’re ready to ask a programming-related question and this form
+              will help guide you through the process.
+            </p>
+            <h5 className="font-semibold text-[13px] text-gray-800 dark:text-blue-200 mt-4 mb-1">
+              Steps
+            </h5>
+            <ul className="list-disc pl-8 space-y-1 text-[13px] text-gray-800 dark:text-blue-200">
+              <li>Summarize your problem in a one-line title.</li>
+              <li>Describe your problem in more detail.</li>
+              <li>Describe what you tried and what you expected to happen.</li>
+              <li>Add tags which help surface your question.</li>
+            </ul>
           </div>
+        </div>
 
-          {/* Row 2: Topic and University */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Controller
-                name="topic"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isLoadingTopics}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={isLoadingTopics ? "Loading..." : "Topic"}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {topics.map((t: any) => (
-                        <SelectItem key={t.id} value={t.name}>
-                          {t.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.topic && (
-                <p className="text-red-500 text-xs">{errors.topic.message}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Controller
-                name="university"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isLoadingUniversities}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={
-                          isLoadingUniversities ? "Loading..." : "University"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {universities.map((u: any) => (
-                        <SelectItem key={u.id} value={u.name}>
-                          {u.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Row 3: College/School and Campus */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Controller
-                name="school"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isLoadingSchools}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={
-                          isLoadingSchools ? "Loading..." : "College / School"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {schools.map((s: any) => (
-                        <SelectItem key={s.id} value={s.name}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.school && (
-                <p className="text-red-500 text-xs">{errors.school.message}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Controller
-                name="campus"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isLoadingCampuses}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={
-                          isLoadingCampuses ? "Loading..." : "Campus"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {campuses.map((c: any) => (
-                        <SelectItem key={c.id} value={c.name}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.campus && (
-                <p className="text-red-500 text-xs">{errors.campus.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Row 4: Grade Level */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Controller
-                name="gradeLevel"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isLoadingGradeLevels}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={
-                          isLoadingGradeLevels ? "Loading..." : "Grade level"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {gradeLevels.map((g: any) => (
-                        <SelectItem key={g.id} value={g.name}>
-                          {g.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.gradeLevel && (
-                <p className="text-red-500 text-xs">
-                  {errors.gradeLevel.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Row 5: Share details and context */}
-          <div className="flex flex-col gap-2">
-            <Textarea
-              {...register("details")}
-              placeholder="Share details and context"
-              className="w-full min-h-32"
-            />
-            {errors.details && (
-              <p className="text-red-500 text-xs">{errors.details.message}</p>
-            )}
-          </div>
-
-          {/* Row 6: Your name and Your school (optional) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Input
-                {...register("yourName")}
-                placeholder="Your name (optional)"
-                className="w-full"
-              />
-              {errors.yourName && (
-                <p className="text-red-500 text-xs">
-                  {errors.yourName.message}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Input
-                {...register("yourSchool")}
-                placeholder="Your school (optional)"
-                className="w-full"
-              />
-              {errors.yourSchool && (
-                <p className="text-red-500 text-xs">
-                  {errors.yourSchool.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Row 7: Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Input
-                {...register("tags")}
-                placeholder="Tags (comma-separated)"
-                className="w-full"
-              />
-              {errors.tags && (
-                <p className="text-red-500 text-xs">{errors.tags.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Attachments */}
-          <div className="flex flex-col gap-3">
-            <h4 className="text-lg font-semibold">Attachments</h4>
-            <Input
-              {...register("linkUrl")}
-              placeholder="Add Link (optional)"
-              className="w-full"
-            />
-            {/* File Input Area */}
-            <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-colors hover:border-gray-300 dark:hover:border-gray-600">
-              <Input
-                type="file"
-                multiple
-                id="file-upload"
-                className="hidden"
-                onChange={(e) => {
-                  const newFiles = Array.from(e.target.files || []);
-                  if (newFiles.length > 0) {
-                    const currentFiles = (watch("files") as File[]) || [];
-                    setValue("files", [...currentFiles, ...newFiles]);
-                    e.target.value = ""; // Reset input
-                  }
-                }}
-              />
-              <label
-                htmlFor="file-upload"
-                className="flex flex-col items-center justify-center gap-2 cursor-pointer py-4"
-              >
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-                  <UploadCloud className="w-6 h-6 text-blue-500" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                    Click to upload documents or images
+        <div className="flex flex-col lg:flex-row gap-6 items-start px-2">
+          {/* Form Column -> The actual Questions */}
+          <div className="flex-[3] w-full min-w-0">
+            <form
+              onSubmit={handleSubmit}
+              className="w-full flex flex-col gap-4"
+            >
+              {/* Box 1: Title & Type */}
+              <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-sm p-6 flex flex-col gap-4 ">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100">
+                    Title
+                  </h3>
+                  <p className="text-[12px] text-gray-600 dark:text-gray-400">
+                    Be specific and imagine you’re asking a question to another
+                    person.
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Up to 50MB per file
-                  </p>
+                  <Input
+                    id="title"
+                    type="text"
+                    {...register("title")}
+                    placeholder="e.g. Is there a CS study group for freshmen?"
+                    className="mt-1"
+                  />
+                  {errors.title && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.title.message}
+                    </p>
+                  )}
                 </div>
-              </label>
-            </div>
 
-            {/* Selected Files List */}
-            {watch("files") && (watch("files") as File[]).length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
-                {(watch("files") as File[]).map((file, index) => {
-                  const isImage = file.type.startsWith("image/");
-                  const isVideo = file.type.startsWith("video/");
-                  const previewUrl = isImage ? URL.createObjectURL(file) : null;
-
-                  return (
-                    <div
-                      key={index}
-                      className="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800"
-                    >
-                      {/* Remove Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const currentFiles = (watch("files") as File[]) || [];
-                          const newFiles = currentFiles.filter(
-                            (_, i) => i !== index,
-                          );
-                          setValue("files", newFiles);
-                        }}
-                        className="absolute top-1.5 right-1.5 p-1 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-
-                      {/* Preview / Icon */}
-                      <div className="aspect-square flex items-center justify-center bg-gray-100 dark:bg-gray-700/50">
-                        {isImage && previewUrl ? (
-                          <img
-                            src={previewUrl}
-                            alt={file.name}
-                            className="w-full h-full object-cover"
-                            onLoad={() => URL.revokeObjectURL(previewUrl)}
-                          />
-                        ) : isVideo ? (
-                          <div className="flex flex-col items-center gap-2 text-gray-400">
-                            <Video className="w-8 h-8" />
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-2 text-gray-400">
-                            <FileText className="w-8 h-8" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* File Info */}
-                      <div className="p-2 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
-                        <p className="text-xs font-medium truncate text-gray-700 dark:text-gray-300">
-                          {file.name}
-                        </p>
-                        <p className="text-[10px] text-gray-500">
-                          {(file.size / 1024 / 1024).toFixed(1)} MB
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="flex flex-col gap-1 mt-2">
+                  <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100">
+                    Post Type
+                  </h3>
+                  <p className="text-[12px] text-gray-600 dark:text-gray-400">
+                    Are you asking a question or sharing a resource?
+                  </p>
+                  <div className="mt-1">
+                    <Controller
+                      name="postType"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-full sm:w-1/2">
+                            <SelectValue placeholder="Select type..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Question">Question</SelectItem>
+                            <SelectItem value="Resource">Resource</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                  {errors.postType && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.postType.message}
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
-            {errors.files && (
-              <p className="text-red-500 text-xs">
-                {String(errors.files.message)}
-              </p>
-            )}
+
+              {/* Box 2: Details / Body */}
+              <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-sm p-6 flex flex-col gap-3  relative">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100">
+                    What are the details of your problem?
+                  </h3>
+                  <p className="text-[12px] text-gray-600 dark:text-gray-400">
+                    Introduce the problem and expand on what you put in the
+                    title. Minimum 20 characters.
+                  </p>
+                </div>
+
+                <div className="border border-[#E5E7EB] dark:border-gray-700 rounded-sm focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 mt-2">
+                  <div className="bg-gray-50 dark:bg-gray-800 border-b border-[#E5E7EB] dark:border-gray-700 p-2 flex gap-2">
+                    <span className="w-6 h-6 flex items-center justify-center font-bold text-gray-600 text-sm hover:bg-gray-200 cursor-pointer rounded">
+                      B
+                    </span>
+                    <span className="w-6 h-6 flex items-center justify-center italic text-gray-600 text-sm hover:bg-gray-200 cursor-pointer rounded">
+                      I
+                    </span>
+                    <span className="w-6 h-6 flex items-center justify-center font-serif text-gray-600 text-sm hover:bg-gray-200 cursor-pointer rounded">
+                      &ldquo;
+                    </span>
+                    <span className="w-6 h-6 flex items-center justify-center font-mono text-gray-600 text-sm hover:bg-gray-200 cursor-pointer rounded">
+                      &lt;&gt;
+                    </span>
+                  </div>
+                  <Textarea
+                    {...register("details")}
+                    placeholder="Share details and context..."
+                    className="w-full min-h-[220px] p-4 bg-transparent resize-y border-none focus-visible:ring-0 text-[14px]"
+                  />
+                </div>
+                {errors.details && (
+                  <p className="text-red-500 text-xs">
+                    {errors.details.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Box 3: Meta Context (Uni, Campus, Tags) */}
+              <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-sm p-6 flex flex-col ">
+                <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100 mb-4">
+                  Context & Tagging
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                  {/* Col 1 */}
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                        University
+                      </label>
+                      <Controller
+                        name="university"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingUniversities}
+                          >
+                            <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select University" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {universities.map((u: any) => (
+                                <SelectItem key={u.id} value={u.name}>
+                                  {u.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                        College / School
+                      </label>
+                      <Controller
+                        name="school"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingSchools}
+                          >
+                            <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select School" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {schools.map((s: any) => (
+                                <SelectItem key={s.id} value={s.name}>
+                                  {s.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                        Campus
+                      </label>
+                      <Controller
+                        name="campus"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingCampuses}
+                          >
+                            <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select Campus" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {campuses.map((c: any) => (
+                                <SelectItem key={c.id} value={c.name}>
+                                  {c.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Col 2 */}
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                        Topic
+                      </label>
+                      <Controller
+                        name="topic"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingTopics}
+                          >
+                            <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select Topic" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {topics.map((t: any) => (
+                                <SelectItem key={t.id} value={t.name}>
+                                  {t.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                        Grade Level
+                      </label>
+                      <Controller
+                        name="gradeLevel"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingGradeLevels}
+                          >
+                            <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select Grade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {gradeLevels.map((g: any) => (
+                                <SelectItem key={g.id} value={g.name}>
+                                  {g.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                        Tags
+                      </label>
+                      <Input
+                        {...register("tags")}
+                        placeholder="e.g. (housing, scholarships)"
+                        className="w-full bg-white dark:bg-gray-800"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Identity */}
+                <div className="mt-6 pt-6 border-t border-[#E5E7EB] dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                      Your Name (Optional)
+                    </label>
+                    <Input
+                      {...register("yourName")}
+                      placeholder="Anonymous"
+                      className="bg-white dark:bg-gray-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 block mb-1">
+                      Your Primary School (Optional)
+                    </label>
+                    <Input
+                      {...register("yourSchool")}
+                      placeholder=""
+                      className="bg-white dark:bg-gray-800"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Box 4: Attachments */}
+              <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-sm p-6 flex flex-col ">
+                <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100 mb-1">
+                  Attachments
+                </h3>
+                <p className="text-[12px] text-gray-600 dark:text-gray-400 mb-4">
+                  Add a link or upload screenshots/documents to support your
+                  post.
+                </p>
+
+                <div className="flex flex-col gap-4">
+                  <Input
+                    {...register("linkUrl")}
+                    placeholder="Add Link (optional)"
+                    className="w-full sm:w-1/2 bg-white dark:bg-gray-800"
+                  />
+
+                  <div className="border border-dashed border-[#d6d9dc] dark:border-gray-600 rounded p-4 bg-gray-50/50 dark:bg-gray-800/30">
+                    <Input
+                      type="file"
+                      multiple
+                      id="file-upload"
+                      className="hidden"
+                      onChange={(e) => {
+                        const newFiles = Array.from(e.target.files || []);
+                        if (newFiles.length > 0) {
+                          const currentFiles = (watch("files") as File[]) || [];
+                          setValue("files", [...currentFiles, ...newFiles]);
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="flex flex-col items-center justify-center gap-2 cursor-pointer py-2"
+                    >
+                      <UploadCloud className="w-6 h-6 text-gray-400" />
+                      <div className="text-center">
+                        <p className="text-[13px] font-medium text-blue-600 dark:text-blue-400">
+                          Click to upload files
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Selected Files */}
+                  {watch("files") && (watch("files") as File[]).length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {(watch("files") as File[]).map((file, index) => {
+                        const isImage = file.type.startsWith("image/");
+                        const isVideo = file.type.startsWith("video/");
+                        const previewUrl = isImage
+                          ? URL.createObjectURL(file)
+                          : null;
+                        return (
+                          <div
+                            key={index}
+                            className="relative group border border-[#E5E7EB] dark:border-gray-700 rounded overflow-hidden"
+                          >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const currentFiles =
+                                  (watch("files") as File[]) || [];
+                                setValue(
+                                  "files",
+                                  currentFiles.filter((_, i) => i !== index),
+                                );
+                              }}
+                              className="absolute top-1 right-1 p-0.5 bg-black/60 text-white rounded-full z-10"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                            <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                              {isImage && previewUrl ? (
+                                <img
+                                  src={previewUrl}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                  onLoad={() => URL.revokeObjectURL(previewUrl)}
+                                />
+                              ) : isVideo ? (
+                                <Video className="w-6 h-6 text-gray-400" />
+                              ) : (
+                                <FileText className="w-6 h-6 text-gray-400" />
+                              )}
+                            </div>
+                            <div className="px-2 py-1 bg-white dark:bg-gray-800 border-t border-[#E5E7EB] dark:border-gray-700">
+                              <p className="text-[10px] truncate">
+                                {file.name}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="mt-2 mb-10">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-[#0A95FF] hover:bg-[#0074CC] text-white shadow-inner-sm border border-transparent px-3 py-2 h-auto"
+                >
+                  {isSubmitting ? "Submitting..." : "Post your question"}
+                </Button>
+              </div>
+            </form>
           </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="tertiary"
-            className="w-full md:w-auto px-6"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit for Approval"}
-          </Button>
-        </form>
-      </section>
+          {/* Right Sidebar - Helpful Info */}
+          <section className="hidden lg:flex flex-col w-[300px] xl:w-[320px] shrink-0 space-y-4">
+            <div className="bg-[#Fdf7e2] dark:bg-amber-900/10 border border-[#F1E5BC] dark:border-amber-700/30 rounded p-4  text-[13px] text-gray-800 dark:text-gray-300">
+              <h4 className="font-semibold mb-2">
+                Asking across universities?
+              </h4>
+              <p className="mb-2">
+                If your question is relevant to multiple universities, you can
+                leave the University tag completely blank! It will show up in
+                the global feed.
+              </p>
+              <h4 className="font-semibold mb-2 mt-4">Tagging matters</h4>
+              <p>
+                Students follow specific tags like <code>housing</code> or{" "}
+                <code>financial-aid</code>. Tagging correctly means faster
+                answers.
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
     </main>
   );
 }

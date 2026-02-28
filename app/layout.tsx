@@ -35,7 +35,7 @@ export default function RootLayout({
             },
           }}
         />
-        <div className="w-full mx-auto max-w-5xl px-4">{children}</div>
+        <div className="w-full mx-auto max-w-7xl px-4 bg-[#F6F3ED]">{children}</div>
       </body>
     </html>
   );

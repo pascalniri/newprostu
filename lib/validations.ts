@@ -43,8 +43,28 @@ export const submissionSchema = yup.object().shape({
     .defined(),
 });
 
-// Admin login validation schema
+// Admin & User login validation schema
 export const loginSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(6, "Password must be at least 6 characters"),
+});
+
+// User registration validation schema
+export const registerSchema = yup.object().shape({
+  firstName: yup
+    .string()
+    .required("First name is required")
+    .min(2, "First name must be at least 2 characters"),
+  lastName: yup
+    .string()
+    .required("Last name is required")
+    .min(2, "Last name must be at least 2 characters"),
   email: yup
     .string()
     .email("Invalid email address")
@@ -122,6 +142,7 @@ export type SubmissionFormData = {
   files: any | null;
 };
 export type LoginFormData = yup.InferType<typeof loginSchema>;
+export type RegisterFormData = yup.InferType<typeof registerSchema>;
 export type TopicFormData = yup.InferType<typeof topicSchema>;
 export type SchoolFormData = yup.InferType<typeof schoolSchema>;
 export type CampusFormData = yup.InferType<typeof campusSchema>;

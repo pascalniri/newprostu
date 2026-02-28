@@ -1,54 +1,55 @@
 "use client";
 
-import CampusMap from "@/components/campus-map";
 import Navigation from "@/components/navigation";
-import SelectYourUniversity from "@/components/select-your-university";
-import { useSubmissions, useUniversities } from "@/hooks";
+import HomeFeed from "@/components/home-feed";
+import HomeSidebar from "@/components/home-sidebar";
+import { useContent, useUniversities } from "@/hooks";
 
 export default function Home() {
-  const { submissions, isLoading: submissionsLoading } = useSubmissions();
-  const {
-    universities,
-    isLoading: universitiesLoading,
-    page,
-    setPage,
-    totalPages,
-    totalCount,
-  } = useUniversities();
+  const { content, isLoading: contentLoading } = useContent();
+  const { universities, isLoading: universitiesLoading } = useUniversities();
+
   return (
-    <main className="flex flex-col space-y-5 w-full py-5">
-      <Navigation />
+    <main className="flex flex-col w-full min-h-screen bg-[#F6F3ED] dark:bg-black font-sans">
+      {/* 
+        Container adjusted to be wider on large monitors. 
+        Using max-w-[1600px] instead of max-w-7xl to provide ample width.
+      */}
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col space-y-5">
+        <Navigation />
 
-      <section className="w-full bg-white dark:bg-gray-900 flex flex-col gap-2 items-start justify-center px-4 py-6 rounded-lg border border-[#E5E7EB] dark:border-gray-800">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Our Mission
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          We connect high school students with real insights from university
-          students. Ask questions, share resources, and learn how to join clubs,
-          programs, and communities across top universities.
-        </p>
-      </section>
+        <div className="flex flex-col lg:flex-row gap-8 items-start mt-2">
+          {/* Main Feed Column (Approx 75% width on very large screens) */}
+          <section className="flex-1 lg:flex-[3] xl:flex-[4] w-full min-w-0">
+            <HomeFeed
+              posts={content}
+              isLoading={contentLoading}
+              universities={universities}
+            />
+          </section>
 
-      <section className="grid md:grid-cols-2 gap-4">
-        {/* CAMPUS MAP */}
-        <div>
-          <CampusMap />
+          {/* Right Sidebar Column (Fixed max width, flex shrink logic) */}
+          <section className="flex-1 w-full lg:w-[320px] xl:w-[350px] shrink-0 space-y-6">
+            <HomeSidebar
+              universities={universities}
+              isLoading={universitiesLoading}
+            />
+
+            {/* Mission Statement (moved to sidebar) */}
+            <div className="bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 shadow-sm rounded-sm p-5 flex flex-col gap-2">
+              <h3 className="text-[15px] font-bold text-gray-800 dark:text-gray-200">
+                Our Mission
+              </h3>
+              <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                We connect high school students with real insights from
+                university students. Ask questions, share resources, and learn
+                how to join clubs, programs, and communities across top
+                universities.
+              </p>
+            </div>
+          </section>
         </div>
-
-        {/* Select Your University */}
-        <div>
-          <SelectYourUniversity
-            universities={universities}
-            submissions={submissions}
-            isLoading={universitiesLoading}
-            page={page}
-            setPage={setPage}
-            totalPages={totalPages}
-            totalCount={totalCount}
-          />
-        </div>
-      </section>
+      </div>
     </main>
   );
 }

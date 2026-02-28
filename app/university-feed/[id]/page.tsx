@@ -42,8 +42,8 @@ export default function UniversityFeedPage() {
 
   if (!university && !isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F6F3ED] p-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9F9] dark:bg-black p-4">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           University Not Found
         </h1>
         <Button onClick={() => router.push("/")}>
@@ -55,37 +55,37 @@ export default function UniversityFeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F3ED] pb-12">
-      <div className="py-6">
+    <div className="min-h-screen bg-[#F6F3ED] dark:bg-black pb-12 font-sans">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col space-y-5">
         <Navigation />
-      </div>
 
-      <main className="space-y-6">
-        {university && (
-          <>
-            <div className="flex flex-col lg:flex-row gap-6 lg:items-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              {/* Main Feed Column */}
-              <div className="flex-1 min-w-0">
-                {/* <div className="flex items-center justify-between mb-6">
+        <main className="space-y-6 mt-2">
+          {university && (
+            <>
+              <div className="flex flex-col lg:flex-row gap-8 items-start">
+                {/* Main Feed Column */}
+                <div className="flex-1 lg:flex-[3] xl:flex-[4] w-full min-w-0">
+                  {/* <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                     Community Feed
                   </h2>
                 </div> */}
 
-                <FeedList universityName={university.name} />
-              </div>
+                  <FeedList universityName={university.name} />
+                </div>
 
-              {/* Sidebar Column */}
-              <div className="w-full lg:w-80 xl:w-96 shrink-0 lg:sticky lg:top-24 space-y-6 order-first lg:order-last">
-                {/* University Card / Header */}
-                <div className="overflow-hidden">
-                  <UniversityHeader university={university} />
+                {/* Sidebar Column */}
+                <div className="w-full lg:w-[320px] xl:w-[350px] shrink-0 space-y-6 order-first lg:order-last">
+                  {/* University Card / Header */}
+                  <div className="overflow-hidden bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-sm">
+                    <UniversityHeader university={university} />
+                  </div>
                 </div>
               </div>
-            </div>
-          </>
-        )}
-      </main>
+            </>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
